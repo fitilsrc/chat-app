@@ -5,6 +5,7 @@ export default function DrawerLayout() {
     <Drawer
       screenOptions={{
         headerTitleAlign: "center",
+        headerShown: false,
       }}
     >
       <Drawer.Screen name="(home)" options={{
