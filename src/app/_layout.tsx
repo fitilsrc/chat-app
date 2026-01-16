@@ -4,9 +4,18 @@ import { PortalHost } from "@rn-primitives/portal";
 import { ClerkProvider } from "@clerk/clerk-expo";
 import { tokenCache } from "@clerk/clerk-expo/token-cache";
 import { useAuth } from "@clerk/clerk-expo";
+import { View, ActivityIndicator, Text } from "react-native";
 
 function RootLayoutStack() {
-  const { isSignedIn } = useAuth()
+  const { isSignedIn, isLoaded } = useAuth()
+
+  if (!isLoaded) {
+    return (
+      <View className="flex justify-center items-center h-full">
+        <ActivityIndicator size="large" color="primary" />
+      </View>
+    )
+  }
 
   return (
     <>
