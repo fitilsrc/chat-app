@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Pressable, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, Pressable, TextInput, TouchableOpacity, View } from 'react-native';
 import { useSignUp } from '@clerk/clerk-expo';
 import { Link, useRouter } from 'expo-router';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -38,7 +38,11 @@ export default function SignUpScreen() {
     } catch (err) {
       // See Clerk docs: custom flows error handling
       // for more info on error handling
-      console.error(JSON.stringify(err, null, 2))
+      if (err instanceof Error) {
+        Alert.alert('Error', err.message)
+      } else {
+        Alert.alert('Error', 'An unknown error occurred')
+      }
     }
   }
 
@@ -56,7 +60,7 @@ export default function SignUpScreen() {
       // and redirect the user
       if (signUpAttempt.status === 'complete') {
         await setActive({ session: signUpAttempt.createdSessionId })
-        router.replace('/')
+        router.replace('/(drawer)/(home)/(tabs)/chats')
       } else {
         // If the status is not complete, check why. User may need to
         // complete further steps.
@@ -71,17 +75,46 @@ export default function SignUpScreen() {
 
   if (pendingVerification) {
     return (
-      <>
-        <Text>Verify your email</Text>
-        <TextInput
-          value={code}
-          placeholder="Enter your verification code"
-          onChangeText={(code) => setCode(code)}
-        />
-        <TouchableOpacity onPress={onVerifyPress}>
-          <Text>Verify</Text>
-        </TouchableOpacity>
-      </>
+      <View className="gap-6 h-full justify-center items-center">
+        <Card className="border-border/0 sm:border-border pb-4 shadow-none sm:shadow-sm sm:shadow-black/5">
+          <CardHeader>
+            <CardTitle className="text-center text-xl sm:text-left">Verify your email</CardTitle>
+            <CardDescription className="text-center sm:text-left">
+              Enter the verification code sent to m@example.com
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="gap-6">
+            <View className="gap-6">
+              <View className="gap-1.5">
+                <Label htmlFor="code">Verification code</Label>
+                <Input
+                  id="code"
+                  autoCapitalize="none"
+                  returnKeyType="send"
+                  keyboardType="numeric"
+                  autoComplete="sms-otp"
+                  textContentType="oneTimeCode"
+                  value={code}
+                  onChangeText={(code) => setCode(code)}
+                />
+              </View>
+              <View className="gap-3">
+                <Button className="w-full" onPress={onVerifyPress}>
+                  <Text>Continue</Text>
+                </Button>
+                <Button
+                  variant="link"
+                  className="mx-auto"
+                  onPress={() => {
+                    // TODO: Navigate to sign up screen
+                  }}>
+                  <Text>Cancel</Text>
+                </Button>
+              </View>
+            </View>
+          </CardContent>
+        </Card>
+      </View>
     )
   }
 

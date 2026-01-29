@@ -31,7 +31,7 @@ export default function Page() {
       // and redirect the user
       if (signInAttempt.status === 'complete') {
         await setActive({ session: signInAttempt.createdSessionId })
-        router.replace('/')
+        router.replace('/(drawer)/(home)/(tabs)/chats')
       } else {
         // If the status isn't complete, check why. User might need to
         // complete further steps.
@@ -100,7 +100,7 @@ export default function Page() {
           <Text className="text-center text-sm">
             Don&apos;t have an account?{' '}
             <Pressable
-              onPress={() => router.push('/sighn-up')}>
+              onPress={() => router.push('/sign-up')}>
               <Text className="text-sm underline underline-offset-4 top-1.5">Sign up</Text>
             </Pressable>
           </Text>
