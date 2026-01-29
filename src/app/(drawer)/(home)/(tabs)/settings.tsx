@@ -8,8 +8,8 @@ export default function Settings() {
   return (
     <View className="flex-1 items-center justify-center">
       <Text>Settings</Text>
-      <Button variant="outline" onPress={() => signOut()}>
-        <Text>Sign Out</Text>
+      <Button variant="default" onPress={() => signOut()}>
+        <Text className="text-primary-foreground">Sign Out</Text>
       </Button>
     </View>
   );
