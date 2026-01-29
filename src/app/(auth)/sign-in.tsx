@@ -45,7 +45,7 @@ export default function Page() {
   }
 
   return (
-    <View className="gap-6">
+    <View className="gap-6 h-full justify-center items-center">
       <Card className="border-border/0 sm:border-border shadow-none sm:shadow-sm sm:shadow-black/5">
         <CardHeader>
           <CardTitle className="text-center text-xl sm:text-left">Sign in to your app</CardTitle>
@@ -101,7 +101,7 @@ export default function Page() {
             Don&apos;t have an account?{' '}
             <Pressable
               onPress={() => router.push('/sighn-up')}>
-              <Text className="text-sm underline underline-offset-4">Sign up</Text>
+              <Text className="text-sm underline underline-offset-4 top-1.5">Sign up</Text>
             </Pressable>
           </Text>
         </CardContent>
