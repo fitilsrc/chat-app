@@ -17,7 +17,7 @@ export default function ChatsLayout() {
             <Button
               variant="outline"
               size="icon"
-              className="rounded-full"
+              className="rounded-full h-16 w-16 p-4"
               onPress={() => navigation.openDrawer()}
             >
               <Ionicons name="menu" color="gray" size={24} />
@@ -27,7 +27,7 @@ export default function ChatsLayout() {
             <Button
               variant="outline"
               size="icon"
-              className="rounded-full"
+              className="rounded-full h-16 w-16 p-4"
               onPress={() => navigation.openDrawer()}
             >
               <Ionicons name="add" color="gray" size={24} />
