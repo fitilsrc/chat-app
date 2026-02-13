@@ -5,6 +5,7 @@ import { ClerkProvider } from "@clerk/clerk-expo";
 import { tokenCache } from "@clerk/clerk-expo/token-cache";
 import { useAuth } from "@clerk/clerk-expo";
 import { View, ActivityIndicator, Text } from "react-native";
+import { SupabaseProvider } from "@/components/providers/supabase.provider";
 
 function RootLayoutStack() {
   const { isSignedIn, isLoaded } = useAuth()
@@ -37,7 +38,9 @@ function RootLayoutStack() {
 export default function RootLayout() {
   return (
     <ClerkProvider tokenCache={tokenCache}>
-      <RootLayoutStack />
+      <SupabaseProvider>
+        <RootLayoutStack />
+      </SupabaseProvider>
     </ClerkProvider>
   );
 }

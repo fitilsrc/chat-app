@@ -49,7 +49,7 @@ export default function ChannelScreen() {
           data={messages}
           contentContainerStyle={styles.contentContainer}
           renderItem={({ item }: { item: MessageEntity }) => <MessageListItem message={item} isOwnMessage={isOwnMessage(item)} />}
-          inverted={false}
+          inverted={true}
           keyboardShouldPersistTaps="handled"
         />
 
@@ -68,5 +68,6 @@ const styles = StyleSheet.create({
     paddingRight: 16,
     paddingBottom: 16,
     paddingTop: 16,
+    flexDirection: 'column-reverse',
   },
 });
