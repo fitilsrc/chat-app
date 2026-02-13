@@ -18,7 +18,7 @@ function RootLayoutStack() {
   }
 
   return (
-    <View className="h-full p-4">
+    <>
       <Stack screenOptions={{
         headerShown: false,
       }}>
@@ -30,7 +30,7 @@ function RootLayoutStack() {
         </Stack.Protected>
       </Stack>
       <PortalHost />
-    </View>
+    </>
   );
 }
 

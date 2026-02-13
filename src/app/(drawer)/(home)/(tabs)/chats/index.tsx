@@ -1,5 +1,5 @@
 import { FlatList, StyleSheet } from "react-native";
-import { channels } from "@/data/channels.";
+import { channels } from "@/data/channels";
 import ChannelListItem from "@/features/channel/components/channel-list-item";
 import { ChannelEntity } from "@/types";
 

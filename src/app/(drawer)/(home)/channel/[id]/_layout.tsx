@@ -1,11 +1,6 @@
-import { Stack, useLocalSearchParams } from "expo-router";
-import { channels } from "@/data/channels.";
+import { Stack } from "expo-router";
 
 export default function ChannelLayout() {
-  const { id } = useLocalSearchParams<{ id: string }>();
-
-  const channel = channels.find((channel) => channel.id === id);
-
   return (
     <Stack>
       <Stack.Screen name="index" options={{
