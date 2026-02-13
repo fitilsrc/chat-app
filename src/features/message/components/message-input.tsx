@@ -3,16 +3,20 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Pressable, View } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useState } from "react";
+import { useCrypto } from "@/lib/nha";
 
 interface MessageInputProps {
-  onSend: (message: string) => void;
+  onSend: (message: string[]) => void;
 }
 
 export function MessageInput({ onSend }: MessageInputProps) {
   const [message, setMessage] = useState('');
+  const { encrypt } = useCrypto();
 
-  const handleSend = () => {
-    onSend(message);
+  const handleSend = async () => {
+    const encryptedMessage = await encrypt(message);
+    console.log(encryptedMessage);
+    onSend([JSON.stringify(encryptedMessage), message]);
     setMessage("");
   };
 

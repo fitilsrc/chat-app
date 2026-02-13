@@ -22,17 +22,19 @@ export default function ChannelScreen() {
     return <Redirect href="/(drawer)/(home)/(tabs)/chats" />;
   }
 
-  const handleSend = (message: string) => {
-    setMessages([...messages, {
-      id: Math.random().toString(36).substring(2, 15),
-      content: message,
-      createdAt: new Date(),
-      sender: {
-        id: user?.id ?? '',
-        name: user?.fullName ?? '',
-      },
-    }]);
-  };
+  const handleSend = (message: string[]) => {
+    setMessages([...messages, ...message.map(
+      (msg, index) => { return {
+        id: Math.random().toString(36).substring(2, 15),
+        content: msg,
+        createdAt: new Date(),
+        sender: {
+          id: user?.id ?? '',
+          name: user?.fullName ?? '',
+        },
+      }}
+    )]);
+  }
 
   return (
     <>
