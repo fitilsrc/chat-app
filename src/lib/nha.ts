@@ -69,7 +69,6 @@ export const useCrypto = () => {
         return a;
     }
 
-    // Генерация матрицы
     while (true) {
         const a = randRange(1, p);
         const b = randRange(1, p);
@@ -108,13 +107,16 @@ export const useCrypto = () => {
     return key;
   }
 
-  async function encrypt(text: string, p = 256) {
-    // UTF-8 → bytes
-    let data = Buffer.from(text, "utf8");
+  const textEncoder = new TextEncoder();
 
-    // padding до чётной длины
+  async function encrypt(text: string, p = 256): Promise<Uint8Array> {
+    let data = textEncoder.encode(text);
+
     if (data.length % 2 !== 0) {
-        data = Buffer.concat([data, Buffer.from([0])]);
+      const padded = new Uint8Array(data.length + 1);
+      padded.set(data);
+      padded[data.length] = 0;
+      data = padded;
     }
 
     // ===== 6 раундов =====
@@ -125,15 +127,13 @@ export const useCrypto = () => {
         const { matrix: K_ab } = generateMatrix(key, p);
         const K_v = generateVigenereKey(key, data.length);
 
-        // --- SBOX ---
-        let tmp = Buffer.alloc(data.length);
+        let tmp = new Uint8Array(data.length);
         for (let i = 0; i < data.length; i++) {
             tmp[i] = sbox[data[i]];
         }
         data = tmp;
 
-        // --- AFFINE ---
-        tmp = Buffer.alloc(data.length);
+        tmp = new Uint8Array(data.length);
 
         for (let i = 0; i < data.length; i += 2) {
             const x1 = data[i];
@@ -145,47 +145,27 @@ export const useCrypto = () => {
 
         data = tmp;
 
-        // --- VIGENERE ---
-        tmp = Buffer.alloc(data.length);
+        tmp = new Uint8Array(data.length);
         for (let i = 0; i < data.length; i++) {
             tmp[i] = (data[i] + K_v[i].charCodeAt(0)) % p;
         }
         data = tmp;
     }
 
-    // =============================
-    // INLINE KEY STREAM
-    // =============================
     const seed = await generateRToken(masterKey, null);
 
-    const ks = Buffer.alloc(data.length);
+    const ks = new Uint8Array(data.length);
     for (let i = 0; i < data.length; i++) {
         ks[i] = seed.charCodeAt(i % seed.length);
     }
 
-    // XOR поток
-    const dataXOR = Buffer.alloc(data.length);
+    const dataXOR = new Uint8Array(data.length);
     for (let i = 0; i < data.length; i++) {
         dataXOR[i] = data[i] ^ ks[i];
     }
 
     return dataXOR;  
 }
-
-  // async function encrypt(data: string) {
-  //   const utf8Encode = new TextEncoder();
-  //   const dataBytes = utf8Encode.encode(data);
-  //   const dataString = Array.from(dataBytes, (byte) => String.fromCharCode(byte)).join('');
-
-  //   const rToken = await generateRToken(data, 1);
-  //   const sboxToken = generateSbox(rToken);
-  //   const matrixToken = generateMatrix(rToken);
-  //   const vigenereKey = generateVigenereKey(rToken, dataString.length);
-
-
-    
-  //   return sboxToken;
-  // }
 
   function decrypt(data: string) {
 
