@@ -7,7 +7,6 @@ export default function HomeScreen() {
   return (
     <FlatList
       data={channels}
-      contentInsetAdjustmentBehavior="always"
       contentContainerStyle={styles.contentContainer}
       renderItem={({ item }: { item: ChannelEntity }) => <ChannelListItem channel={item} />}
     />
@@ -16,7 +15,6 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   contentContainer: {
-    padding: 16,
-    paddingTop: 96,
+    top: 16,
   },
 });

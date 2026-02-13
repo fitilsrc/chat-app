@@ -11,13 +11,11 @@ export default function ChatsLayout() {
           title: "Chats",
           headerTitleAlign: "center",
           headerLargeTitle: true,
-          headerTransparent: true,
-
           headerLeft: () => (
             <Button
               variant="outline"
               size="icon"
-              className="rounded-full h-16 w-16 p-4"
+              className="rounded-full h-16 w-16 p-4 mt-4 mb-4"
               onPress={() => navigation.openDrawer()}
             >
               <Ionicons name="menu" color="gray" size={24} />
