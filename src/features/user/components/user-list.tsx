@@ -1,35 +1,40 @@
 import UserListItem from "./user-list-item";
-import { FlatList, StyleSheet } from "react-native";
+import { ActivityIndicator, FlatList, StyleSheet } from "react-native";
 import { useSupabase } from "@/components/providers/supabase.provider";
-import { useEffect, useState } from "react";
 import { useUser } from "@clerk/clerk-expo";
 import { UserEntity } from "@/types/user.entity";
+import { useQuery } from "@tanstack/react-query";
+import { Text } from "@/components/ui/text";
 
 export default function UserList() {
   const supabase = useSupabase();
   const { user } = useUser();
-  const [users, setUsers] = useState<UserEntity[] | null>(null);
-  useEffect(() => {
-    const fetchUsers = async () => {
-      const { data, error } = await supabase
+
+  const { data, isLoading, error } = useQuery<UserEntity[]>({
+    queryKey: ['users'],
+    queryFn: async () => {
+      const { data: users, error } = await supabase
         .from('users')
         .select('*')
-        .neq('id', user?.id || '');
-      
-
+        .neq('id', user?.id ?? '');
       if (error) {
-        console.error(error);
-      } else {
-        setUsers(data);
+        throw error;
       }
-    };
+      return users ?? [];
+    },
+  });
 
-    fetchUsers();
-  }, []);
+  if (isLoading) {
+    return <ActivityIndicator size="large" className="flex justify-center items-center h-full" />;
+  }
+
+  if (error) {
+    return <Text className="text-red-500">{error.message}</Text>;
+  }
 
   return (
     <FlatList
-      data={users ?? []}
+      data={data ?? []}
       contentContainerStyle={styles.contentContainer}
       renderItem={({ item }) => <UserListItem user={item} />}
     />

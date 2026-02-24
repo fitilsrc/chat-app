@@ -6,6 +6,16 @@ import { tokenCache } from "@clerk/clerk-expo/token-cache";
 import { useAuth } from "@clerk/clerk-expo";
 import { View, ActivityIndicator, Text } from "react-native";
 import { SupabaseProvider } from "@/components/providers/supabase.provider";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: false,
+    },
+  },
+});
 
 function RootLayoutStack() {
   const { isSignedIn, isLoaded } = useAuth()
@@ -46,9 +56,11 @@ if (!publishableKey) {
 export default function RootLayout() {
   return (
     <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
-      <SupabaseProvider>
-        <RootLayoutStack />
-      </SupabaseProvider>
+      <QueryClientProvider client={queryClient}>
+        <SupabaseProvider>
+          <RootLayoutStack />
+        </SupabaseProvider>
+      </QueryClientProvider>
     </ClerkProvider>
   );
 }
