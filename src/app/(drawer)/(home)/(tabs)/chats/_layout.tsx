@@ -1,4 +1,4 @@
-import { Stack } from "expo-router";
+import { Link, Stack } from "expo-router";
 import { Button } from "@/components/ui/button";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
@@ -6,7 +6,7 @@ export default function ChatsLayout() {
   return (
     <Stack>
       <Stack.Screen
-        name="index" 
+        name="index"
         options={({ navigation }) => ({
           title: "Chats",
           headerTitleAlign: "center",
@@ -26,9 +26,10 @@ export default function ChatsLayout() {
               variant="outline"
               size="icon"
               className="rounded-full h-16 w-16 p-4"
-              onPress={() => navigation.openDrawer()}
             >
-              <Ionicons name="add" color="gray" size={24} />
+              <Link href="/(drawer)/(home)/new/new-chat" asChild>
+                <Ionicons name="add" color="gray" size={24} />
+              </Link>
             </Button>
           ),
         })}

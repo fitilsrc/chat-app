@@ -168,7 +168,7 @@ export const useCrypto = () => {
 }
 
   function decrypt(data: string) {
-
+    // TODO: Implement decryption
   }
 
   return {
