@@ -1,7 +1,3 @@
-export type UserEntity = {
-  id: string
-  first_name: string
-  last_name: string
-  full_name: string
-  avatar?: string
-}
+import { Tables } from "@/types/supabase.types";
+
+export type UserEntity = Tables<"users">;

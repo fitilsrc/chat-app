@@ -1,20 +1,21 @@
-import { createContext, useContext, useState } from "react"
-import { createClient, processLock, SupabaseClient } from "@supabase/supabase-js"
-import AsyncStorage from "@react-native-async-storage/async-storage"
-import { Platform } from "react-native"
-import { useSession } from "@clerk/clerk-expo"
+import { createContext, useContext, useState } from "react";
+import { createClient, processLock, SupabaseClient } from "@supabase/supabase-js";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Platform } from "react-native";  
+import { useSession } from "@clerk/clerk-expo";
+import { Database } from "@/types/supabase.types";
 
-const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!
+const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL!;
+const supabaseKey = process.env.EXPO_PUBLIC_SUPABASE_KEY!;
 
-const SupabaseContext = createContext<SupabaseClient | null>(null)
+const SupabaseContext = createContext<SupabaseClient<Database> | null>(null);
 
 const SupabaseProvider = ({ children }: { children: React.ReactNode }) => {
   const { session } = useSession();
 
-  const [supabase] = useState(() => createClient(
+  const [supabase] = useState(() => createClient<Database>(
     supabaseUrl,
-    supabaseAnonKey,
+    supabaseKey,
     {
       auth: {
         ...(Platform.OS !== 'web' ? { storage: AsyncStorage } : {}),
