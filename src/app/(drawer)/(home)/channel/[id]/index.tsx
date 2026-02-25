@@ -31,6 +31,12 @@ export default function ChannelScreen() {
         sender: {
           id: user?.id ?? '',
           name: user?.fullName ?? '',
+          avatar_url: user?.imageUrl ?? '',
+          created_at: user?.createdAt?.toISOString() ?? '',
+          first_name: user?.firstName ?? '',
+          full_name: user?.fullName ?? '',
+          last_name: user?.lastName ?? '',
+          updated_at: user?.updatedAt?.toISOString() ?? '',
         },
       }}
     )]);

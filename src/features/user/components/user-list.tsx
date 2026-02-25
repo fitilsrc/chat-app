@@ -13,14 +13,13 @@ export default function UserList() {
   const { data, isLoading, error } = useQuery<UserEntity[]>({
     queryKey: ['users'],
     queryFn: async () => {
-      const { data: users, error } = await supabase
+      const { data: users } = await supabase
         .from('users')
         .select('*')
-        .neq('id', user?.id ?? '');
-      if (error) {
-        throw error;
-      }
-      return users ?? [];
+        .neq('id', user?.id ?? '')
+        .throwOnError();
+
+      return users;
     },
   });
 
@@ -33,11 +32,13 @@ export default function UserList() {
   }
 
   return (
-    <FlatList
-      data={data ?? []}
-      contentContainerStyle={styles.contentContainer}
-      renderItem={({ item }) => <UserListItem user={item} />}
-    />
+    <>
+      <FlatList
+        data={data ?? []}
+        contentContainerStyle={styles.contentContainer}
+        renderItem={({ item }) => <UserListItem user={item} />}
+      />
+    </>
   );
 }
 

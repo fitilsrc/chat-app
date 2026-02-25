@@ -45,22 +45,15 @@ function RootLayoutStack() {
   );
 }
 
-const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
-
-if (!publishableKey) {
-  throw new Error(
-    "Missing EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY. Get your key at https://dashboard.clerk.com/last-active?path=api-keys"
-  );
-}
 
 export default function RootLayout() {
   return (
-    <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
-      <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClient}>
+      <ClerkProvider tokenCache={tokenCache}>
         <SupabaseProvider>
           <RootLayoutStack />
         </SupabaseProvider>
-      </QueryClientProvider>
-    </ClerkProvider>
+      </ClerkProvider>
+    </QueryClientProvider>
   );
 }
