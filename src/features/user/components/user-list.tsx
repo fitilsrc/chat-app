@@ -6,7 +6,11 @@ import { UserEntity } from "@/types/user.entity";
 import { useQuery } from "@tanstack/react-query";
 import { Text } from "@/components/ui/text";
 
-export default function UserList() {
+interface UserListProps {
+  onPress?: (user: UserEntity) => void;
+}
+
+export default function UserList({ onPress }: UserListProps) {
   const supabase = useSupabase();
   const { user } = useUser();
 
@@ -32,13 +36,16 @@ export default function UserList() {
   }
 
   return (
-    <>
-      <FlatList
-        data={data ?? []}
-        contentContainerStyle={styles.contentContainer}
-        renderItem={({ item }) => <UserListItem user={item} />}
-      />
-    </>
+    <FlatList
+      data={data ?? []}
+      contentContainerStyle={styles.contentContainer}
+      renderItem={({ item }) => (
+        <UserListItem
+          user={item}
+          onPress={onPress}
+        />
+      )}
+    />
   );
 }
 
