@@ -1,10 +1,10 @@
 import { View } from "react-native";
 import { Text } from "@/components/ui/text";
-import { MessageEntity } from "@/types";
+import { MessageWithUserEntity } from "@/types";
 import { formatDistanceToNow } from "date-fns";
 
 interface MessageListItemProps {
-  message: MessageEntity;
+  message: MessageWithUserEntity;
   isOwnMessage: boolean;
 }
 

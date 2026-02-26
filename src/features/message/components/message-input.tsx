@@ -4,19 +4,47 @@ import { Pressable, View } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useState } from "react";
 import { useCrypto } from "@/lib/nha";
+import { useUser } from "@clerk/clerk-expo";
+import { Text } from "@/components/ui/text";
+import { useMutation } from "@tanstack/react-query";
+import { useSupabase } from "@/components/providers/supabase.provider";
+import { useLocalSearchParams } from "expo-router";
 
 interface MessageInputProps {
-  onSend: (message: string[]) => void;
+  channelId: string;
 }
 
-export function MessageInput({ onSend }: MessageInputProps) {
+export function MessageInput({ channelId }: MessageInputProps) {
   const [message, setMessage] = useState('');
   const { encrypt } = useCrypto();
+  const supabase = useSupabase();
+  const { user } = useUser();
+  if (!user) {
+    return <Text>Please login to continue</Text>;
+  }
+
+  const newMessageMutation = useMutation({
+    mutationFn: async (message: string) => {
+      const { data } = await supabase
+        .from('messages')
+        .insert({
+          content: message,
+          user_id: user.id,
+          channel_id: channelId,
+        })
+        .select('*')
+        .single()
+        .throwOnError();
+
+      return data;
+    },
+  });
 
   const handleSend = async () => {
-    const encryptedMessage = await encrypt(message);
-    console.log(encryptedMessage);
-    onSend([JSON.stringify(encryptedMessage), message]);
+    // const encryptedMessage = await encrypt(message);
+    // console.log(encryptedMessage);
+    // onSend([JSON.stringify(encryptedMessage), message]);
+    newMessageMutation.mutate(message);
     setMessage("");
   };
 

@@ -1,9 +1,7 @@
-import { UserEntity } from "./user.entity"
+import { Tables } from "./supabase.types";
+import { UserEntity } from "./user.entity";
 
-export type MessageEntity = {
-  id: string;
-  content: string;
-  createdAt: Date;
-  sender?: UserEntity;
-  image?: string;
+export type MessageEntity = Tables<'messages'>;
+export type MessageWithUserEntity = MessageEntity & {
+  user: UserEntity;
 }
