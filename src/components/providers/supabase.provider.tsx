@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { createClient, processLock, SupabaseClient } from "@supabase/supabase-js";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Platform } from "react-native";  
+import { ActivityIndicator, Platform } from "react-native";  
 import { useSession } from "@clerk/clerk-expo";
 import { Database } from "@/types/supabase.types";
 
@@ -16,6 +16,7 @@ const SupabaseProvider = ({ children }: { children: React.ReactNode }) => {
   const [supabase, setSupabase] = useState<SupabaseClient<Database> | null>(null)
 
   useEffect(() => {
+    if (!session) return;
     const supabase = createClient<Database>(
       supabaseUrl,
       supabaseAnonKey,
@@ -34,6 +35,10 @@ const SupabaseProvider = ({ children }: { children: React.ReactNode }) => {
     )
     setSupabase(supabase)
   }, [session])
+
+  if (!supabase) {
+    return <ActivityIndicator size="large" className="flex justify-center items-center h-full" />;
+  }
 
   return (
     <SupabaseContext.Provider value={supabase}>

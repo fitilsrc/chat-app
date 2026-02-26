@@ -1,15 +1,15 @@
-import { Redirect, Stack, useLocalSearchParams } from "expo-router";
-import { FlatList, ActivityIndicator, StyleSheet } from "react-native";
-import { channels } from "@/data/channels";
+import { Stack, useLocalSearchParams } from "expo-router";
+import { ActivityIndicator, FlatList, StyleSheet } from "react-native";
 import { messages as initialMessages } from "@/data/messages";
-import { MessageEntity } from "@/types";
+import { ChannelEntity, MessageEntity } from "@/types";
 import { MessageListItem } from "@/features/message/components/message-list-item";
 import { useUser } from "@clerk/clerk-expo";
 import { useCallback, useState } from "react";
 import { MessageInput } from "@/features/message/components/message-input";
 import { useSupabase } from "@/components/providers/supabase.provider";
 import { useQuery } from "@tanstack/react-query";
-import { ChannelEntity } from "@/types/channel.entity";
+import { Text } from "@/components/ui/text";
+
 
 export default function ChannelScreen() {
   const [messages, setMessages] = useState<MessageEntity[]>(initialMessages);
@@ -17,40 +17,18 @@ export default function ChannelScreen() {
   const { user } = useUser();
   const supabase = useSupabase();
 
-  const { data: dbChannel, isLoading, isSuccess } = useQuery({
-    queryKey: ["channel", id],
+  const { data: channel, isLoading } = useQuery({
+    queryKey: ['channel', id],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("channels")
-        .select("id, name, type")
-        .eq("id", id)
-        .maybeSingle();
-      if (error) {
-        throw error;
-      }
+      const { data } = await supabase
+        .from('channels')
+        .select('*')
+        .eq('id', id)
+        .single()
+        .throwOnError();
       return data;
     },
-    enabled: Boolean(id),
   });
-
-  const isOwnMessage = useCallback((message: MessageEntity) => message.sender?.id === user?.id, [user]);
-
-  const staticChannel = channels.find((c) => c.id === id);
-  const channel: ChannelEntity | null = dbChannel
-    ? { id: dbChannel.id, name: dbChannel.name ?? "Chat", avatar: "" }
-    : staticChannel ?? null;
-
-  if (isLoading) {
-    return <ActivityIndicator size="large" className="flex-1 justify-center items-center" />;
-  }
-
-  if (isSuccess && !dbChannel && !staticChannel) {
-    return <Redirect href="/(drawer)/(home)/(tabs)/chats" />;
-  }
-
-  if (!channel) {
-    return <Redirect href="/(drawer)/(home)/(tabs)/chats" />;
-  }
 
   const handleSend = (message: string[]) => {
     setMessages([...messages, ...message.map(
@@ -74,17 +52,21 @@ export default function ChannelScreen() {
     )]);
   }
 
+  const isOwnMessage = useCallback((message: MessageEntity) => message.sender?.id === user?.id, [user]);
+
+  if (isLoading) {
+    return <ActivityIndicator size="large" className="flex justify-center items-center h-full" />;
+  }
+
+  if (!channel) {
+    return <Text className="text-red-500">Channel not found</Text>;
+  }
+
   return (
     <>
       <Stack.Screen options={{
-        title: channel.name,
+        title: channel.name ?? '',
       }} />
-
-      {/* <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={styles.container}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
-      > */}
       <FlatList
         data={messages}
         contentContainerStyle={styles.contentContainer}
@@ -94,7 +76,6 @@ export default function ChannelScreen() {
       />
 
       <MessageInput onSend={handleSend} />
-      {/* </KeyboardAvoidingView> */}
     </>
   );
 }

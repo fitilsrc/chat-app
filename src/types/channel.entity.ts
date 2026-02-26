@@ -1,8 +1,7 @@
-import { MessageEntity } from "./message.entity";
+import { Tables } from "./supabase.types";
+import { UserEntity } from "./user.entity";
 
-export type ChannelEntity = {
-  id: string;
-  name: string;
-  avatar: string;
-  lastMessage?: MessageEntity;
+export type ChannelEntity = Tables<'channels'>;
+export type ChannelWithUsersEntity = ChannelEntity & {
+  users: UserEntity[];
 }
