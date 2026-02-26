@@ -17,16 +17,22 @@ export default function ChannelScreen() {
   const { user } = useUser();
   const supabase = useSupabase();
 
+  if (!user) {
+    return <Text>Please login to continue</Text>;
+  }
+
   const { data: channel, isLoading } = useQuery({
     queryKey: ['channel', id],
     queryFn: async () => {
       const { data } = await supabase
         .from('channels')
-        .select('*')
+        .select('*, users(*)')
         .eq('id', id)
         .single()
         .throwOnError();
-      return data;
+      
+        console.log(JSON.stringify(data, null, 2));
+        return data;
     },
   });
 
@@ -62,10 +68,15 @@ export default function ChannelScreen() {
     return <Text className="text-red-500">Channel not found</Text>;
   }
 
+  const otherUser = channel?.users?.find((channelUser) => channelUser.id !== user.id);
+  const channelName = channel?.type === 'direct'
+    ? otherUser?.full_name ?? ''
+    : channel?.name ?? '';
+
   return (
     <>
       <Stack.Screen options={{
-        title: channel.name ?? '',
+        title: channelName,
       }} />
       <FlatList
         data={messages}
