@@ -34,7 +34,7 @@ export default function ChannelScreen() {
     },
   });
 
-  const isOwnMessage = useCallback((message: MessageWithUserEntity) => message.user.id === user?.id, [user]);
+  const isOwnMessage = useCallback((message: MessageWithUserEntity) => message.user?.id === user?.id, [user]);
 
   if (isLoading) {
     return <ActivityIndicator size="large" className="flex justify-center items-center h-full" />;

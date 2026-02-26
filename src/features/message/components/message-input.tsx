@@ -6,9 +6,8 @@ import { useState } from "react";
 import { useCrypto } from "@/lib/nha";
 import { useUser } from "@clerk/clerk-expo";
 import { Text } from "@/components/ui/text";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useSupabase } from "@/components/providers/supabase.provider";
-import { useLocalSearchParams } from "expo-router";
 
 interface MessageInputProps {
   channelId: string;
@@ -18,6 +17,7 @@ export function MessageInput({ channelId }: MessageInputProps) {
   const [message, setMessage] = useState('');
   const { encrypt } = useCrypto();
   const supabase = useSupabase();
+  const queryClient = useQueryClient();
   const { user } = useUser();
   if (!user) {
     return <Text>Please login to continue</Text>;
@@ -38,13 +38,13 @@ export function MessageInput({ channelId }: MessageInputProps) {
 
       return data;
     },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['channel', channelId] });
+    },
   });
 
   const handleSend = async () => {
-    // const encryptedMessage = await encrypt(message);
-    // console.log(encryptedMessage);
-    // onSend([JSON.stringify(encryptedMessage), message]);
-    newMessageMutation.mutate(message);
+    await newMessageMutation.mutateAsync(message);
     setMessage("");
   };
 

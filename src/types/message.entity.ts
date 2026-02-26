@@ -3,5 +3,5 @@ import { UserEntity } from "./user.entity";
 
 export type MessageEntity = Tables<'messages'>;
 export type MessageWithUserEntity = MessageEntity & {
-  user: UserEntity;
+  user: UserEntity | null;
 }
