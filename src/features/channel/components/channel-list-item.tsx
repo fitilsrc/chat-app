@@ -13,8 +13,10 @@ interface ChannelListItemProps {
 export default function ChannelListItem({ channel }: ChannelListItemProps) {
   const { user: currentUser } = useUser();
 
+  const otherUser = channel.users.filter((user) => user.id !== currentUser?.id)[0];
+
   const channelName = channel.type === 'direct' ?
-    `Chat with ${channel.users.filter((user) => user.id === currentUser?.id)[0].full_name}` :
+    `Chat with ${otherUser?.full_name}` :
     channel.name;
 
   return (

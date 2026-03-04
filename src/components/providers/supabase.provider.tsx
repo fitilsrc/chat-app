@@ -11,12 +11,11 @@ const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY!;
 const SupabaseContext = createContext<SupabaseClient<Database> | null>(null);
 
 const SupabaseProvider = ({ children }: { children: React.ReactNode }) => {
-  const { session } = useSession();
 
-  const [supabase, setSupabase] = useState<SupabaseClient<Database> | null>(null)
+const { session } = useSession();
+const [supabase, setSupabase] = useState<SupabaseClient<Database> | null>(null)
 
   useEffect(() => {
-    if (!session) return;
     const supabase = createClient<Database>(
       supabaseUrl,
       supabaseAnonKey,
@@ -34,7 +33,7 @@ const SupabaseProvider = ({ children }: { children: React.ReactNode }) => {
       }
     )
     setSupabase(supabase)
-  }, [session])
+  }, [])
 
   if (!supabase) {
     return <ActivityIndicator size="large" className="flex justify-center items-center h-full" />;

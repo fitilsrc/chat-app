@@ -24,6 +24,12 @@ export function MessageInput() {
     return <Text>Please login to continue</Text>;
   }
 
+  if (!channelId) {
+    return <Text>Channel not found</Text>;
+  }
+
+  const subscription = supabase.channel(`channel-${channelId}`);
+
   const newMessageMutation = useMutation({
     mutationFn: async (message: string) => {
       const { data } = await supabase
@@ -40,7 +46,13 @@ export function MessageInput() {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['channel', channelId] });
+      subscription.send({
+        type: 'broadcast',
+        event: 'shout',
+        payload: {
+          content: message,
+        },
+      });
     },
   });
 

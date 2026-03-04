@@ -8,14 +8,9 @@ import { ChannelMessages } from "@/features/channel/components/channel-messages"
 
 export default function ChannelScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { user } = useUser();
-
-  if (!user) {
-    return <Text>Please login to continue</Text>;
-  }
 
   return (
-    <ChannelProvider>
+    <ChannelProvider id={id}>
       <ChannelHeader />
       <ChannelMessages />
       <MessageInput />

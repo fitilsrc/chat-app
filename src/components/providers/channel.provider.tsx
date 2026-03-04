@@ -1,11 +1,9 @@
-import { createContext, useContext, useEffect } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { useSupabase } from "./supabase.provider";
 import { ChannelWithUsersEntity } from "@/types";
-import { useQuery } from "@tanstack/react-query";
-import { useLocalSearchParams } from "expo-router";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ActivityIndicator } from "react-native";
 import { Text } from "../ui/text";
-import { RealtimeChannel } from "@supabase/supabase-js";
 
 type ChannelContextType = {
   channel: ChannelWithUsersEntity | null;
@@ -15,41 +13,40 @@ const ChannelContext = createContext<ChannelContextType>({
   channel: null,
 });
 
-const ChannelProvider = ({ children }: { children: React.ReactNode }) => {
+const ChannelProvider = ({ children, id }: { children: React.ReactNode, id: string }) => {
   const supabase = useSupabase();
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
-    if (!id) {
-      return;
-    }
-    const myChannelSubscription = supabase.channel(id);
+    const myChannelSubscription = supabase.channel(`channel-${id}`, {
+      config: {
+        broadcast: {
+          self: true,
+        },
+      },
+    });
 
-    function messageReceived(payload: { payload: unknown }) {
-      console.log(payload);
+    function messageReceived(payload: unknown) {
+      console.log('Message received', payload);
+      queryClient.invalidateQueries({ queryKey: ['messages', id] });
     }
 
     myChannelSubscription
-      .on("broadcast", { event: "shout" }, (payload: { payload: unknown }) => messageReceived(payload))
-
-    myChannelSubscription.subscribe((status) => {
-      if (status === 'SUBSCRIBED') {
-        console.log('Channel subscribed');
-
-        myChannelSubscription.send({
-          type: 'broadcast',
-          event: 'shout',
-          payload: {
-            message: 'Hello, world!',
-          },
-        });
-      }
-    });
+      .on('broadcast', {
+        event: "shout"
+      }, (payload) => messageReceived(payload))
+      .subscribe(
+        (status) => {
+          if (status === 'SUBSCRIBED') {
+            console.log('Channel subscribed');
+          }
+        }
+      );
 
     return () => {
       supabase.removeChannel(myChannelSubscription);
     };
-  }, [id, supabase]);
+  }, []);
 
   const { data: channel, isLoading } = useQuery({
     queryKey: ['channel', id],
