@@ -1,3 +1,4 @@
+import { MessageWithUserEntity } from "./message.entity";
 import { Tables } from "./supabase.types";
 import { UserEntity } from "./user.entity";
 

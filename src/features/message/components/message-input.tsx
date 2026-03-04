@@ -8,17 +8,18 @@ import { useUser } from "@clerk/clerk-expo";
 import { Text } from "@/components/ui/text";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useSupabase } from "@/components/providers/supabase.provider";
+import { useChannel } from "@/components/providers/channel.provider";
 
-interface MessageInputProps {
-  channelId: string;
-}
-
-export function MessageInput({ channelId }: MessageInputProps) {
+export function MessageInput() {
   const [message, setMessage] = useState('');
   const { encrypt } = useCrypto();
   const supabase = useSupabase();
   const queryClient = useQueryClient();
   const { user } = useUser();
+  const { channel } = useChannel();
+
+  const channelId = channel?.id ?? '';
+
   if (!user) {
     return <Text>Please login to continue</Text>;
   }
