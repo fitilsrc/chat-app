@@ -53,10 +53,12 @@ export function MessageInput() {
           content: message,
         },
       });
+      queryClient.invalidateQueries({ queryKey: ['messages', channelId] });
     },
   });
 
   const handleSend = async () => {
+    if (!message.trim()) return;
     await newMessageMutation.mutateAsync(message);
     setMessage("");
   };
