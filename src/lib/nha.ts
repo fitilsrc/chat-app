@@ -169,6 +169,73 @@ export const useCrypto = () => {
 
   function decrypt(data: string) {
     // TODO: Implement decryption
+    // =============================
+    // INLINE KEY STREAM
+    // =============================
+    const seed = crypto
+        .createHash("sha256")
+        .update(String(masterKey))
+        .digest();
+
+    const ks = Buffer.alloc(data.length);
+    for (let i = 0; i < data.length; i++) {
+        ks[i] = seed[i % seed.length];
+    }
+
+    // XOR поток
+    let tmp = Buffer.alloc(data.length);
+    for (let i = 0; i < data.length; i++) {
+        tmp[i] = data[i] ^ ks[i];
+    }
+
+    data = tmp;
+
+    // ===== обратные раунды =====
+    for (let r = 5; r >= 0; r--) {
+
+        const key = roundKey(masterKey, r);
+
+        const { inv } = generateSbox(key, p);
+        const { inverse: K_abinv } = generateMatrix(key, p);
+        const K_v = generateVigenereKey(key, data.length);
+
+        // --- VIGENERE (обратный) ---
+        tmp = Buffer.alloc(data.length);
+        for (let i = 0; i < data.length; i++) {
+            tmp[i] = ((data[i] - K_v[i]) % p + p) % p;
+        }
+        data = tmp;
+
+        // --- AFFINE (обратный) ---
+        tmp = Buffer.alloc(data.length);
+
+        for (let i = 0; i < data.length; i += 2) {
+
+            const y1 = data[i];
+            const y2 = data[i + 1];
+
+            tmp[i]     = (K_abinv[0] * y1 + K_abinv[1] * y2) % p;
+            tmp[i + 1] = (K_abinv[2] * y1 + K_abinv[3] * y2) % p;
+        }
+
+        data = tmp;
+
+        // --- SBOX (обратный) ---
+        tmp = Buffer.alloc(data.length);
+
+        for (let i = 0; i < data.length; i++) {
+            tmp[i] = inv[data[i]];
+        }
+
+        data = tmp;
+    }
+
+    // убрать padding
+    while (data[data.length - 1] === 0) {
+        data = data.slice(0, -1);
+    }
+
+    return data.toString("utf8");
   }
 
   return {
