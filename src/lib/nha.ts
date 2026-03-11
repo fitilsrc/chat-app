@@ -108,6 +108,7 @@ export const useCrypto = () => {
   }
 
   const textEncoder = new TextEncoder();
+  const textDecoder = new TextDecoder();
 
   async function encrypt(text: string, p = 256): Promise<Uint8Array> {
     let data = textEncoder.encode(text);
@@ -167,75 +168,61 @@ export const useCrypto = () => {
     return dataXOR;  
 }
 
-  function decrypt(data: string) {
-    // TODO: Implement decryption
-    // =============================
-    // INLINE KEY STREAM
-    // =============================
-    const seed = crypto
-        .createHash("sha256")
-        .update(String(masterKey))
-        .digest();
+  async function decrypt(data: Uint8Array, p = 256): Promise<string> {
+    const seed = await generateRToken(masterKey, null);
 
-    const ks = Buffer.alloc(data.length);
+    const ks = new Uint8Array(data.length);
     for (let i = 0; i < data.length; i++) {
-        ks[i] = seed[i % seed.length];
+      ks[i] = seed.charCodeAt(i % seed.length);
     }
 
-    // XOR поток
-    let tmp = Buffer.alloc(data.length);
+    let tmp = new Uint8Array(data.length);
     for (let i = 0; i < data.length; i++) {
-        tmp[i] = data[i] ^ ks[i];
+      tmp[i] = data[i] ^ ks[i];
     }
 
     data = tmp;
 
-    // ===== обратные раунды =====
     for (let r = 5; r >= 0; r--) {
+      const key = await generateRToken(masterKey, r);
 
-        const key = roundKey(masterKey, r);
+      const { inv } = await generateSbox(key, p);
+      const { inverse: K_abinv } = generateMatrix(key, p);
+      const K_v = generateVigenereKey(key, data.length);
 
-        const { inv } = generateSbox(key, p);
-        const { inverse: K_abinv } = generateMatrix(key, p);
-        const K_v = generateVigenereKey(key, data.length);
+      tmp = new Uint8Array(data.length);
+      for (let i = 0; i < data.length; i++) {
+        const value = (data[i] - K_v[i].charCodeAt(0)) % p;
+        tmp[i] = (value + p) % p;
+      }
+      data = tmp;
 
-        // --- VIGENERE (обратный) ---
-        tmp = Buffer.alloc(data.length);
-        for (let i = 0; i < data.length; i++) {
-            tmp[i] = ((data[i] - K_v[i]) % p + p) % p;
-        }
-        data = tmp;
+      tmp = new Uint8Array(data.length);
 
-        // --- AFFINE (обратный) ---
-        tmp = Buffer.alloc(data.length);
+      for (let i = 0; i < data.length; i += 2) {
+        const y1 = data[i];
+        const y2 = data[i + 1];
 
-        for (let i = 0; i < data.length; i += 2) {
+        tmp[i] = (K_abinv[0] * y1 + K_abinv[1] * y2) % p;
+        tmp[i + 1] = (K_abinv[2] * y1 + K_abinv[3] * y2) % p;
+      }
 
-            const y1 = data[i];
-            const y2 = data[i + 1];
+      data = tmp;
 
-            tmp[i]     = (K_abinv[0] * y1 + K_abinv[1] * y2) % p;
-            tmp[i + 1] = (K_abinv[2] * y1 + K_abinv[3] * y2) % p;
-        }
+      tmp = new Uint8Array(data.length);
 
-        data = tmp;
+      for (let i = 0; i < data.length; i++) {
+        tmp[i] = inv[data[i]];
+      }
 
-        // --- SBOX (обратный) ---
-        tmp = Buffer.alloc(data.length);
-
-        for (let i = 0; i < data.length; i++) {
-            tmp[i] = inv[data[i]];
-        }
-
-        data = tmp;
+      data = tmp;
     }
 
-    // убрать padding
-    while (data[data.length - 1] === 0) {
-        data = data.slice(0, -1);
+    while (data.length > 0 && data[data.length - 1] === 0) {
+      data = data.slice(0, data.length - 1);
     }
 
-    return data.toString("utf8");
+    return textDecoder.decode(data);
   }
 
   return {

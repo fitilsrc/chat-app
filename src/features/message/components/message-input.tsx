@@ -9,6 +9,11 @@ import { Text } from "@/components/ui/text";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useSupabase } from "@/components/providers/supabase.provider";
 import { useChannel } from "@/components/providers/channel.provider";
+import { Buffer } from "buffer";
+
+function uint8ToBase64(data: Uint8Array): string {
+  return Buffer.from(data).toString('base64');
+}
 
 export function MessageInput() {
   const [message, setMessage] = useState('');
@@ -59,7 +64,9 @@ export function MessageInput() {
 
   const handleSend = async () => {
     if (!message.trim()) return;
-    await newMessageMutation.mutateAsync(message);
+    const encryptedMessage = await encrypt(message);
+    console.log("encryptedMessage", encryptedMessage);
+    await newMessageMutation.mutateAsync(uint8ToBase64(encryptedMessage));
     setMessage("");
   };
 
